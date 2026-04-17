@@ -1,15 +1,17 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "tanstack-start",
-  "serverlessFunctionRegion": "bom1",
-  "redirects": [
-    { "source": "/(.*)", "destination": "/index.html", "statusCode": 200 }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "outputDirectory": "dist/client",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
 }
