@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && npm run build:dev",
   "outputDirectory": "dist/client",
   "cleanUrls": true,
   "trailingSlash": false,
@@ -13,5 +13,14 @@
         }
       ]
     }
-  ]
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "@VITE_API_URL"
+  }
 }
