@@ -40,7 +40,27 @@ export default function HomePage() {
     return experiments.filter((exp: any) => exp.status === 'active' || exp.status === 'ongoing').length || 2;
   }, [experiments]);
 
-  // Allow guests to view the page, no forced redirect
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isLoading, isAuthenticated, navigate]);
+
+  // Show loading spinner during auth check
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <WeatherProvider>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
