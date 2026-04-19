@@ -35,10 +35,13 @@ export async function apiCall<T>(
   }
 
   try {
+    console.log(`[API] Making ${options.method || 'GET'} request to ${API_URL}${endpoint}`);
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers,
     });
+
+    console.log(`[API] Response status: ${response.status} for ${endpoint}`);
 
     if (!response.ok) {
       let errorMsg = 'API request failed';
@@ -48,12 +51,15 @@ export async function apiCall<T>(
       } catch {
         errorMsg = `HTTP ${response.status}: ${response.statusText}`;
       }
+      console.error(`[API] Error for ${endpoint}:`, errorMsg);
       throw new Error(errorMsg);
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log(`[API] Success for ${endpoint}:`, data);
+    return data;
   } catch (error: any) {
-    console.error(`API call failed for ${endpoint}:`, error);
+    console.error(`[API] Exception calling ${endpoint}:`, error);
     throw error;
   }
 }

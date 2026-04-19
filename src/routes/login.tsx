@@ -41,16 +41,21 @@ function LoginPage() {
 
     setLoading(true)
     try {
+      console.log(`Attempting ${isSignUp ? 'signup' : 'login'} for:`, email)
       if (isSignUp) {
-        await signUp(email, password)
+        const result = await signUp(email, password)
+        console.log('Signup successful:', result)
       } else {
-        await signIn(email, password)
+        const result = await signIn(email, password)
+        console.log('Login successful:', result)
       }
       setStep("success")
       toast.success("🎉 Welcome to AI Kisan Salahkar!")
       setTimeout(() => navigate("/"), 2000)
     } catch (error: any) {
-      toast.error(error.message || "Auth failed")
+      console.error('Auth error details:', error)
+      const errorMsg = error?.message || error?.error || 'Authentication failed'
+      toast.error(errorMsg)
     } finally {
       setLoading(false)
     }

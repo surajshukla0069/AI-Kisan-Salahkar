@@ -23,7 +23,9 @@ export async function signUp(email: string, password: string) {
     return response.user;
   } catch (error: any) {
     console.error('Signup error:', error);
-    throw new Error(error.message || 'Sign up failed');
+    console.error('Error message:', error?.message);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    throw new Error(error?.message || error?.error || 'Sign up failed');
   }
 }
 
