@@ -32,8 +32,6 @@ export default function HomePage() {
   // Calculate total profit from experiments
   const totalProfit = useMemo(() => {
     return experiments.reduce((sum: number, exp: any) => {
-      // Parse profit from experiment if available
-      // This will need to be updated based on actual data structure
       return sum + (exp.profit || 0);
     }, 0);
   }, [experiments]);
@@ -42,24 +40,7 @@ export default function HomePage() {
     return experiments.filter((exp: any) => exp.status === 'active' || exp.status === 'ongoing').length || 2;
   }, [experiments]);
 
-  useEffect(() => {
-    console.log('🏠 HomePage: isLoading=', isLoading, 'isAuthenticated=', isAuthenticated);
-    // Always redirect if not authenticated, even if loading
-    if (!isAuthenticated && !isLoading) {
-      console.log('🔄 HomePage: Redirecting to login');
-      navigate({ to: "/login", replace: true });
-    }
-  }, [isLoading, isAuthenticated, navigate]);
-
-  // Simple redirect path - show spinner only briefly
-  if (!isAuthenticated) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-      </div>
-    );
-  }
-
+  // Allow guests to view the page, no forced redirect
   return (
     <WeatherProvider>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
