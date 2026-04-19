@@ -1,11 +1,10 @@
 {
   "buildCommand": "npm install && npm run build",
-  "outputDirectory": ".",
-  "framework": "other",
-  "nodeVersion": "18.x",
-  "functions": {
-    "dist/server/server.js": {
-      "runtime": "nodejs18.x"
+  "outputDirectory": "dist/client",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
     }
-  }
+  ]
 }
