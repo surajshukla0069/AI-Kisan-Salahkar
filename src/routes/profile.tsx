@@ -17,20 +17,10 @@ import { motion } from "framer-motion";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-    meta: [
-      { title: "Profile — MicroPlot" },
-      { name: "description", content: "Manage your farmer profile" },
-    ],
-  }),
-  component: ProfilePage,
-});
-
-function ProfilePage() {
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const { data: experiments = [] } = useExperiments();
   const updateProfile = useUpdateProfile();
-  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [village, setVillage] = useState("");

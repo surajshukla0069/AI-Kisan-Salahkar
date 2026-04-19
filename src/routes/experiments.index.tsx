@@ -11,11 +11,7 @@ import { CROPS } from "@/lib/store";
 import { t } from "@/lib/translations";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/experiments/")({
-  component: ExperimentsPage,
-});
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
+export const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   setup: { label: "Setting Up", className: "bg-warning/10 text-warning border-warning/20" },
   growing: { label: "Growing", className: "bg-success/10 text-success border-success/20" },
   harvested: { label: "Harvested", className: "bg-harvest/10 text-earth border-harvest/20" },
@@ -95,7 +91,7 @@ function ProcessStep({ icon: Icon, step, title, description }: { icon: any; step
   );
 }
 
-function ExperimentsPage() {
+export default function ExperimentsPage() {
   const { data: experiments, isLoading } = useExperiments();
   const { preferences } = useUserPreferences();
   const lang = preferences?.language || 'en';

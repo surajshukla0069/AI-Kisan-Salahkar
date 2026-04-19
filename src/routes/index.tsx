@@ -26,7 +26,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-function HomePage() {
+export default function HomePage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { preferences } = useUserPreferences();
   const { data: experiments = [] } = useExperiments();

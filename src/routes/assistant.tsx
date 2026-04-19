@@ -10,16 +10,6 @@ import { chatWithAdvisor } from "@/utils/chat.functions";
 import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/assistant")({
-  head: () => ({
-    meta: [
-      { title: "AI Crop Advisor — MicroPlot" },
-      { name: "description", content: "Get AI-powered crop recommendations based on your experiments" },
-    ],
-  }),
-  component: AssistantPage,
-});
-
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -35,7 +25,7 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
-function AssistantPage() {
+export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

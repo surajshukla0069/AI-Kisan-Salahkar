@@ -15,10 +15,6 @@ import { useFullExperiment, useAddOperation, useAddHarvest } from "@/hooks/use-e
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/experiments/$experimentId")({
-  component: ExperimentDetailPage,
-});
-
 const OP_ICONS: Record<string, React.ReactNode> = {
   sowing: <Sprout className="h-4 w-4" />,
   fertilization: <Droplets className="h-4 w-4" />,
@@ -27,8 +23,8 @@ const OP_ICONS: Record<string, React.ReactNode> = {
   harvest: <Wheat className="h-4 w-4" />,
 };
 
-function ExperimentDetailPage() {
-  const { experimentId } = Route.useParams();
+export default function ExperimentDetailPage() {
+  const { experimentId } = useParams<{ experimentId: string }>();
   const { data: experiment, isLoading } = useFullExperiment(experimentId);
   const addOperation = useAddOperation();
   const addHarvest = useAddHarvest();

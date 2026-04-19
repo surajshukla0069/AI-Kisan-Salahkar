@@ -13,13 +13,9 @@ import { useCreateExperiment } from "@/hooks/use-experiments";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const Route = createFileRoute("/experiments/new")({
-  component: NewExperimentPage,
-});
-
 const STEPS = ["Select Crop", "Advisory Sources", "Plot Setup", "Review"];
 
-function NewExperimentPage() {
+export default function NewExperimentPage() {
   const navigate = useNavigate();
   const createExperiment = useCreateExperiment();
   const [step, setStep] = useState(0);

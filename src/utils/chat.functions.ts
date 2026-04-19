@@ -1,5 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
-
 const SYSTEM_PROMPT = `You are an expert AI Crop Advisor for Indian farmers. Your name is MicroPlot AI.
 
 CRITICAL RULE: Always reply in the SAME language the user writes in. If they write in Hindi, reply in Hindi. If they write in Marathi, reply in Marathi. If they write in Bengali, reply in Bengali. If they write in Tamil, reply in Tamil. If they write in Telugu, reply in Telugu. If they write in English, reply in English.
@@ -92,105 +90,50 @@ function detectLanguage(text: string): string {
   return 'en'; // Default to English
 }
 
-export const chatWithAdvisor = createServerFn({ method: "POST" })
-  .inputValidator((input: { messages: ChatMessage[] }) => input)
-  .handler(async ({ data }) => {
-    try {
-      // Get the last user message
-      const lastUserMsg = data.messages[data.messages.length - 1]?.content || '';
-      const language = detectLanguage(lastUserMsg);
-      
-      // Get API key from backend environment
-      const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
-      
-      // If no API key, use fallback response
-      if (!apiKey) {
-        console.log('🔄 Using fallback AI advisor (no GOOGLE_GEMINI_API_KEY configured in server)');
-        const content = generateFallbackResponse(lastUserMsg, language);
-        return { content, error: false };
-      }
-
-      try {
-        console.log('📡 Calling Gemini API...');
-        // Use Google Generative AI SDK - Build request for Gemini API
-        const conversationMessages = data.messages.map(msg => ({
-          role: msg.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: msg.content }]
-        }));
-
-        // Send request to Google Gemini API
-        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            system: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents: conversationMessages,
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-            },
-            safetySettings: [
-              {
-                category: 'HARM_CATEGORY_HARASSMENT',
-                threshold: 'BLOCK_NONE',
-              },
-              {
-                category: 'HARM_CATEGORY_HATE_SPEECH',
-                threshold: 'BLOCK_NONE',
-              },
-              {
-                category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                threshold: 'BLOCK_NONE',
-              },
-              {
-                category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                threshold: 'BLOCK_MEDIUM_AND_ABOVE',
-              },
-            ],
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.text();
-          console.error('❌ Gemini API error:', response.status, error);
-          
-          // Fallback on API error
-          console.log('🔄 Falling back to local AI advisor');
-          const content = generateFallbackResponse(lastUserMsg, language);
-          return { content, error: false };
-        }
-
-        const result = await response.json();
-        
-        // Extract content from Gemini response
-        let content = '';
-        if (result.candidates && result.candidates[0] && result.candidates[0].content) {
-          content = result.candidates[0].content.parts[0].text;
-        }
-
-        if (!content) {
-          console.log('⚠️ No content in Gemini response, using fallback');
-          const fallbackContent = generateFallbackResponse(lastUserMsg, language);
-          return { content: fallbackContent, error: false };
-        }
-
-        console.log('✅ Gemini API response generated successfully!');
-        return { content, error: false };
-      } catch (apiError) {
-        console.error('❌ Gemini API request failed:', apiError);
-        // Fallback on any error
-        const content = generateFallbackResponse(lastUserMsg, language);
-        return { content, error: false };
-      }
-    } catch (error) {
-      console.error('❌ Chat error:', error);
-      // Final fallback
-      const lastUserMsg = data.messages[data.messages.length - 1]?.content || '';
-      const language = detectLanguage(lastUserMsg);
+export async function chatWithAdvisor({ data }: { data: { messages: ChatMessage[] } }): Promise<{ content: string; error: boolean }> {
+  try {
+    // Get the last user message
+    const lastUserMsg = data.messages[data.messages.length - 1]?.content || '';
+    const language = detectLanguage(lastUserMsg);
+    
+    // Call the actual backend API instead
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (!apiUrl) {
+      console.log('🔄 Using fallback AI advisor (no VITE_API_URL configured)');
       const content = generateFallbackResponse(lastUserMsg, language);
       return { content, error: false };
     }
-  });
+
+    try {
+      console.log('📡 Calling backend chat API...');
+      const response = await fetch(`${apiUrl}/recommendations/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: data.messages,
+          language,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return { content: result.content, error: false };
+    } catch (error) {
+      console.error('❌ Backend chat API failed, using fallback:', error);
+      const content = generateFallbackResponse(lastUserMsg, language);
+      return { content, error: false };
+    }
+  } catch (error) {
+    console.error('Chat error:', error);
+    return {
+      content:
+        '❌ Sorry, I encountered an error. Please try again or contact support.',
+      error: true,
+    };
+  }
+}

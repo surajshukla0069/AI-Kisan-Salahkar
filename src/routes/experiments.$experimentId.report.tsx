@@ -10,12 +10,8 @@ import { useFullExperiment, useUpdateExperimentStatus } from "@/hooks/use-experi
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/experiments/$experimentId/report")({
-  component: ReportPage,
-});
-
-function ReportPage() {
-  const { experimentId } = Route.useParams();
+export default function ReportPage() {
+  const { experimentId } = useParams<{ experimentId: string }>();
   const { data: experiment, isLoading } = useFullExperiment(experimentId);
   const updateStatus = useUpdateExperimentStatus();
 

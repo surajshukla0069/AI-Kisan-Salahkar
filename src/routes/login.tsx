@@ -12,14 +12,10 @@ import { toast } from 'sonner'
 import { Mail, Lock, Users, MapPin, CheckCircle2, Loader2 } from 'lucide-react'
 import { LANGUAGES, type Language } from '@/lib/store'
 
-export const Route = createFileRoute('/login')({
-  component: LoginPage,
-})
-
 type AuthStep = 'language' | 'location' | 'form' | 'success'
 
-function LoginPage() {
-  const router = useRouter()
+export default function LoginPage() {
+  const navigate = useNavigate()
   const { user, isAuthenticated } = useAuth()
   const { preferences } = useUserPreferences()
   const [step, setStep] = useState<AuthStep>('language')

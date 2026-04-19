@@ -75,7 +75,7 @@ const SCHEMES: Scheme[] = [
   },
 ];
 
-function SchemesPage() {
+export default function SchemesPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
