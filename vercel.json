@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build && npm run build:dev",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist/client",
   "cleanUrls": true,
   "trailingSlash": false,
