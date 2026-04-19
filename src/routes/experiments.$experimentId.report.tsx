@@ -10,7 +10,7 @@ import { useFullExperiment, useUpdateExperimentStatus } from "@/hooks/use-experi
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
-export default function ReportPage() {
+function ReportPage() {
   const { experimentId } = useParams<{ experimentId: string }>();
   const { data: experiment, isLoading } = useFullExperiment(experimentId);
   const updateStatus = useUpdateExperimentStatus();
@@ -165,3 +165,8 @@ export default function ReportPage() {
     </div>
   );
 }
+
+export default ReportPage;
+
+
+

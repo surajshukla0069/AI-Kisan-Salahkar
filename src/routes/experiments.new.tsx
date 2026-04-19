@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const STEPS = ["Select Crop", "Advisory Sources", "Plot Setup", "Review"];
 
-export default function NewExperimentPage() {
+function NewExperimentPage() {
   const navigate = useNavigate();
   const createExperiment = useCreateExperiment();
   const [step, setStep] = useState(0);
@@ -218,3 +218,8 @@ export default function NewExperimentPage() {
     </div>
   );
 }
+
+export default NewExperimentPage;
+
+
+

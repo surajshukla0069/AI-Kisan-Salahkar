@@ -25,7 +25,7 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
-export default function AssistantPage() {
+function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -164,3 +164,8 @@ export default function AssistantPage() {
     </div>
   );
 }
+
+export default AssistantPage;
+
+
+

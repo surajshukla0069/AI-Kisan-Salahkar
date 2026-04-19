@@ -23,7 +23,7 @@ const OP_ICONS: Record<string, React.ReactNode> = {
   harvest: <Wheat className="h-4 w-4" />,
 };
 
-export default function ExperimentDetailPage() {
+function ExperimentDetailPage() {
   const { experimentId } = useParams<{ experimentId: string }>();
   const { data: experiment, isLoading } = useFullExperiment(experimentId);
   const addOperation = useAddOperation();
@@ -256,3 +256,8 @@ export default function ExperimentDetailPage() {
     </div>
   );
 }
+
+export default ExperimentDetailPage;
+
+
+

@@ -22,23 +22,12 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-export default function HomePage() {
+function HomePage() {
   const { isAuthenticated, isLoading } = useAuth();
   const { preferences } = useUserPreferences();
   const { data: experiments = [] } = useExperiments();
   const navigate = useNavigate();
   const lang = preferences?.language || 'en';
-
-  // Calculate total profit from experiments
-  const totalProfit = useMemo(() => {
-    return experiments.reduce((sum: number, exp: any) => {
-      return sum + (exp.profit || 0);
-    }, 0);
-  }, [experiments]);
-
-  const activeCount = useMemo(() => {
-    return experiments.filter((exp: any) => exp.status === 'active' || exp.status === 'ongoing').length || 2;
-  }, [experiments]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -56,10 +45,28 @@ export default function HomePage() {
     );
   }
 
-  // Show login page if not authenticated
+  // Don't render anything while redirecting
   if (!isAuthenticated) {
     return null;
   }
+
+  // Calculate total profit from experiments
+  const totalProfit = useMemo(() => {
+    return experiments.reduce((sum: number, exp: any) => {
+      return sum + (exp.profit || 0);
+    }, 0);
+  }, [experiments]);
+
+  const activeCount = useMemo(() => {
+    return experiments.filter((exp: any) => exp.status === 'active' || exp.status === 'ongoing').length || 2;
+  }, [experiments]);
+
+  // Redirect to login if not authenticated - use effect as backup
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <WeatherProvider>
@@ -263,3 +270,5 @@ export default function HomePage() {
     </WeatherProvider>
   );
 }
+
+export default HomePage;

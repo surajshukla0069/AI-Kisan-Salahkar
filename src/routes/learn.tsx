@@ -267,7 +267,7 @@ const TIPS = [
   }
 ];
 
-export default function LearnPage() {
+function LearnPage() {
   const [activeTab, setActiveTab] = useState<'lessons' | 'quizzes' | 'tips'>('lessons');
   const [expandedTip, setExpandedTip] = useState<string | null>(null);
   const [selectedQuiz, setSelectedQuiz] = useState<any>(null);
@@ -741,3 +741,8 @@ export default function LearnPage() {
     </div>
   );
 }
+
+export default LearnPage;
+
+
+
