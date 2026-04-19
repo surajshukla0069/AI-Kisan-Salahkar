@@ -6,16 +6,6 @@ import { useState } from "react";
 import { CheckCircle2, FileText, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/schemes")({
-  head: () => ({
-    meta: [
-      { title: "Government Schemes — MicroPlot" },
-      { name: "description", content: "Check your eligibility for government agricultural schemes" },
-    ],
-  }),
-  component: SchemesPage,
-});
-
 interface Question {
   id: string;
   text: string;

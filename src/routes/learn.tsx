@@ -8,16 +8,6 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/learn")({
-  head: () => ({
-    meta: [
-      { title: "Learn — MicroPlot" },
-      { name: "description", content: "Micro-lessons on farming experiments" },
-    ],
-  }),
-  component: LearnPage,
-});
-
 // Quiz Questions Data
 const QUIZ_QUESTIONS: Record<number, any[]> = {
   1: [

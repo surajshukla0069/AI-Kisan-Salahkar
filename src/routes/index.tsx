@@ -13,10 +13,6 @@ import { WeatherWidget } from "@/components/WeatherWidget";
 import { CropSuitabilityCard } from "@/components/CropSuitabilityCard";
 import { WeatherProvider } from "@/hooks/use-weather";
 
-export const Route = createFileRoute("/")({
-  component: HomePage,
-});
-
 const container = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.08 } },
