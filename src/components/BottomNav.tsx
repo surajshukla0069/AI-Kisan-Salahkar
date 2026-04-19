@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import { Home, FlaskConical, Bot, FileText, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ const navItems = [
   { to: "/profile", icon: User, label: "Profile" },
 ] as const;
 
-export function BottomNav() {
+export default function BottomNav() {
   const location = useLocation();
 
   return (

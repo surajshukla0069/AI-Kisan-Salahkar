@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+// Router imports removed
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

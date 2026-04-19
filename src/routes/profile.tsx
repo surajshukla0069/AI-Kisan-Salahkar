@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from 'react-router-dom';
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,11 +13,10 @@ import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { useExperiments } from "@/hooks/use-experiments";
 import { LANGUAGES, type Language } from "@/lib/store";
 import { toast } from "sonner";
-import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/profile")({
-  head: () => ({
+export default function ProfilePage() {
+  const navigate = useNavigate();
     meta: [
       { title: "Profile — MicroPlot" },
       { name: "description", content: "Manage your farmer profile" },

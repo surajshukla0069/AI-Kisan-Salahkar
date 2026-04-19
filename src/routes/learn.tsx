@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+// Router imports removed
 import { AppHeader } from "@/components/AppHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
