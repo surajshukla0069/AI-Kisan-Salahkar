@@ -10,3 +10,19 @@ services:
         value: production
       - key: PORT
         value: 5000
+  - type: web
+    name: ai-kisan-salahkar-frontend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: VITE_API_URL
+        value: https://ai-kisan-salahkar.onrender.com/
+      - key: VITE_SUPABASE_URL
+        value: https://fqkxwjdwejqpgvzarihl.supabase.co
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxa3h3amR3ZWpxcGd2emFyaWhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNTYxOTgsImV4cCI6MjA5MTYzMjE5OH0.MMlV0HbaUp-LUJyp38GPzsZIo1CCBHskFo1AhuYRckU
+      - key: VITE_SUPABASE_PROJECT_ID
+        value: fqkxwjdwejqpgvzarihl
+      - key: VITE_GOOGLE_GEMINI_API_KEY
+        value: AQ.Ab8RN6KYma37jw_41HePNYfdBKZ5Ud4p1eqvb4J1UmQFNgAqsA
