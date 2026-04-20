@@ -13,16 +13,55 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Parse CORS_ORIGIN from .env - handle both string and array formats
-let CORS_ORIGIN: any = process.env.CORS_ORIGIN;
-if (CORS_ORIGIN && typeof CORS_ORIGIN === 'string') {
-  CORS_ORIGIN = CORS_ORIGIN.split(',').map((origin: string) => origin.trim());
-} else if (!CORS_ORIGIN) {
-  CORS_ORIGIN = ['http://localhost:8080', 'http://localhost:8081', 'http://127.0.0.1:8080', 'http://127.0.0.1:8081'];
+const DEFAULT_ALLOWED_ORIGINS = [
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://127.0.0.1:8080',
+  'http://127.0.0.1:8081',
+];
+
+function getConfiguredOrigins(): string[] {
+  const corsOrigin = process.env.CORS_ORIGIN;
+  if (!corsOrigin) {
+    return DEFAULT_ALLOWED_ORIGINS;
+  }
+
+  return corsOrigin
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 }
 
+const configuredOrigins = getConfiguredOrigins();
+const allowAllOrigins = configuredOrigins.includes('*');
+const vercelPreviewRegex = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
+const corsOptions: cors.CorsOptions = {
+  credentials: true,
+  origin(origin, callback) {
+    // Non-browser calls (curl/postman/server-to-server) may have no origin.
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowAllOrigins) {
+      return callback(null, true);
+    }
+
+    if (configuredOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    if (vercelPreviewRegex.test(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+  },
+};
+
 // Middleware
-app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Logging middleware
@@ -61,6 +100,8 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await connectDB();
+
+    console.log('Allowed CORS origins:', allowAllOrigins ? '*' : configuredOrigins.join(', '));
 
     app.listen(PORT, () => {
       console.log(`\n🌾 AI Kisan Salahkar server running on http://localhost:${PORT}`);

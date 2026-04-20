@@ -1,5 +1,49 @@
 // API client for communicating with the backend server
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+function resolveApiUrl(): string {
+  const configuredUrl = import.meta.env.VITE_API_URL?.trim();
+
+  if (configuredUrl) {
+    const cleanedUrl = configuredUrl.replace(/\/$/, '');
+
+    try {
+      const parsed = new URL(cleanedUrl);
+      const path = parsed.pathname.replace(/\/$/, '');
+
+      // If only origin is provided, default to API namespace used by the backend.
+      if (path === '') {
+        return `${cleanedUrl}/api`;
+      }
+
+      return cleanedUrl;
+    } catch {
+      // Non-absolute URLs (like /api) are treated as-is.
+      return cleanedUrl;
+    }
+  }
+
+  // In local development, keep using local backend by default.
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+
+    console.warn('[API] Missing VITE_API_URL in production build; defaulting to same-origin /api');
+    return `${window.location.origin}/api`;
+  }
+
+  return 'http://localhost:5000/api';
+}
+
+const API_URL = resolveApiUrl();
+const API_REQUEST_TIMEOUT_MS = 25000;
+
+function buildAlternateApiUrl(baseUrl: string): string {
+  if (/\/api$/i.test(baseUrl)) {
+    return baseUrl.replace(/\/api$/i, '');
+  }
+  return `${baseUrl}/api`;
+}
 
 // Get token from localStorage
 export function getAuthToken(): string | null {
@@ -34,12 +78,35 @@ export async function apiCall<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  const makeRequest = async (baseUrl: string) => {
+    console.log(`[API] Making ${options.method || 'GET'} request to ${baseUrl}${normalizedEndpoint}`);
+
+    // Avoid infinite loading state when network/proxy keeps the request pending.
+    if (options.signal) {
+      return fetch(`${baseUrl}${normalizedEndpoint}`, {
+        ...options,
+        headers,
+      });
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_REQUEST_TIMEOUT_MS);
+
+    try {
+      return await fetch(`${baseUrl}${normalizedEndpoint}`, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
   try {
-    console.log(`[API] Making ${options.method || 'GET'} request to ${API_URL}${endpoint}`);
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response = await makeRequest(API_URL);
 
     console.log(`[API] Response status: ${response.status} for ${endpoint}`);
 
@@ -48,18 +115,43 @@ export async function apiCall<T>(
       try {
         const error = await response.json();
         errorMsg = error.error || error.message || errorMsg;
+
+        // Common production misconfiguration: API URL points to root/auth instead of /api.
+        // Retry once with alternate base URL before failing the request.
+        if (response.status === 404 && /route not found/i.test(errorMsg)) {
+          const fallbackApiUrl = buildAlternateApiUrl(API_URL);
+          if (fallbackApiUrl !== API_URL) {
+            console.warn(`[API] 404 Route not found. Retrying with fallback base URL: ${fallbackApiUrl}`);
+            response = await makeRequest(fallbackApiUrl);
+            if (response.ok) {
+              const fallbackData = await response.json();
+              console.log(`[API] Success after fallback for ${normalizedEndpoint}:`, fallbackData);
+              return fallbackData;
+            }
+          }
+        }
       } catch {
         errorMsg = `HTTP ${response.status}: ${response.statusText}`;
       }
-      console.error(`[API] Error for ${endpoint}:`, errorMsg);
+      console.error(`[API] Error for ${normalizedEndpoint}:`, errorMsg);
       throw new Error(errorMsg);
     }
 
     const data = await response.json();
-    console.log(`[API] Success for ${endpoint}:`, data);
+    console.log(`[API] Success for ${normalizedEndpoint}:`, data);
     return data;
   } catch (error: any) {
-    console.error(`[API] Exception calling ${endpoint}:`, error);
+    if (error?.name === 'AbortError') {
+      throw new Error('Request timed out. Server is taking too long to respond, please try again.');
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error(
+        `Network error: unable to reach backend at ${API_URL}. ` +
+          'Check VITE_API_URL and backend CORS settings.'
+      );
+    }
+    console.error(`[API] Exception calling ${normalizedEndpoint}:`, error);
     throw error;
   }
 }
