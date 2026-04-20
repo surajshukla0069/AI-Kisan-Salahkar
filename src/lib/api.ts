@@ -36,7 +36,7 @@ function resolveApiUrl(): string {
 }
 
 const API_URL = resolveApiUrl();
-const API_REQUEST_TIMEOUT_MS = 25000;
+const API_REQUEST_TIMEOUT_MS = 70000;
 
 function buildAlternateApiUrl(baseUrl: string): string {
   if (/\/api$/i.test(baseUrl)) {
@@ -159,25 +159,51 @@ export async function apiCall<T>(
 // Auth API calls
 export const authAPI = {
   signup: async (email: string, password: string, language: string, location: string, latitude?: number, longitude?: number) => {
-    const response = await apiCall<{
+    const request = () => apiCall<{
       token: string;
       user: { id: string; email: string; language: string; location: string };
     }>('/auth/signup', {
       method: 'POST',
       body: JSON.stringify({ email, password, language, location, latitude, longitude }),
     });
+
+    let response;
+    try {
+      response = await request();
+    } catch (error: any) {
+      if (/timed out/i.test(error?.message || '')) {
+        // Render free instances may need one extra attempt after cold start.
+        response = await request();
+      } else {
+        throw error;
+      }
+    }
+
     setAuthToken(response.token);
     return response;
   },
 
   login: async (email: string, password: string) => {
-    const response = await apiCall<{
+    const request = () => apiCall<{
       token: string;
       user: { id: string; email: string; language: string; location: string };
     }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    let response;
+    try {
+      response = await request();
+    } catch (error: any) {
+      if (/timed out/i.test(error?.message || '')) {
+        // Render free instances may need one extra attempt after cold start.
+        response = await request();
+      } else {
+        throw error;
+      }
+    }
+
     setAuthToken(response.token);
     return response;
   },
